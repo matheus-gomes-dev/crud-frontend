@@ -11,17 +11,25 @@
 
 import React from 'react';
 import { FormattedMessage } from 'react-intl';
+import axios from 'axios';
 import messages from './messages';
+import Pagination from './pagination';
 
 /* eslint-disable react/prefer-stateless-function */
 export default class HomePage extends React.Component {
+  componentWillMount() {
+    axios.get('http://localhost:5000/').then(data => {
+      console.log(data);
+    });
+  }
+
   render() {
     return (
       <div>
         <h1>
           <FormattedMessage {...messages.header} />
         </h1>
-        <button className="btn btn-primary">teste</button>
+        <Pagination pages={3} />
       </div>
     );
   }
