@@ -14,22 +14,42 @@ import { FormattedMessage } from 'react-intl';
 import axios from 'axios';
 import messages from './messages';
 import Pagination from './pagination';
+import Table from './table';
+import MarginDiv from './index.style';
+const API_URL = 'http://localhost:5000';
 
 /* eslint-disable react/prefer-stateless-function */
 export default class HomePage extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { currentPage: null, totalPages: null, products: [] };
+  }
   componentWillMount() {
-    axios.get('http://localhost:5000/').then(data => {
-      console.log(data);
+    const url = new URL(window.location.href);
+    const currentPage = url.searchParams.get('page') || 1;
+    axios.get(`${API_URL}?page=${currentPage}`).then(response => {
+      const totalPages = response.data.data.pages;
+      const products = response.data.data.docs;
+      this.setState({ ...this.state, currentPage, totalPages, products });
     });
   }
 
   render() {
+    const { totalPages, products } = this.state;
     return (
-      <div>
+      <div className="container">
         <h1>
           <FormattedMessage {...messages.header} />
         </h1>
-        <Pagination pages={3} />
+        <MarginDiv>
+          <button className="btn btn-success">
+            <span>Register new product</span>
+          </button>
+        </MarginDiv>
+        <MarginDiv>
+          <Table products={products} />
+        </MarginDiv>
+        <Pagination pages={totalPages} />
       </div>
     );
   }
