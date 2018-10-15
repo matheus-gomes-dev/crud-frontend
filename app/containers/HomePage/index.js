@@ -16,7 +16,8 @@ import messages from './messages';
 import Pagination from './pagination';
 import Table from './table';
 import MarginDiv from './index.style';
-const API_URL = 'http://localhost:5000';
+import config from '../../config/config';
+const { API_URL } = config;
 
 /* eslint-disable react/prefer-stateless-function */
 export default class HomePage extends React.Component {
@@ -26,7 +27,7 @@ export default class HomePage extends React.Component {
   }
   componentWillMount() {
     const url = new URL(window.location.href);
-    const currentPage = url.searchParams.get('page') || 1;
+    const currentPage = Number(url.searchParams.get('page')) || 1;
     axios.get(`${API_URL}?page=${currentPage}`).then(response => {
       const totalPages = response.data.data.pages;
       const products = response.data.data.docs;
@@ -35,7 +36,7 @@ export default class HomePage extends React.Component {
   }
 
   render() {
-    const { totalPages, products } = this.state;
+    const { currentPage, totalPages, products } = this.state;
     return (
       <div className="container">
         <h1>
@@ -49,7 +50,7 @@ export default class HomePage extends React.Component {
         <MarginDiv>
           <Table products={products} />
         </MarginDiv>
-        <Pagination pages={totalPages} />
+        <Pagination pages={totalPages} currentPage={currentPage} />
       </div>
     );
   }
