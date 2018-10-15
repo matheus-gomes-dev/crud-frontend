@@ -3,7 +3,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Table from '../table';
+import Table from '../../../components/table/table';
 
 describe('<Table />', () => {
   it('should render the table component', () => {

@@ -3,7 +3,7 @@
 import React from 'react';
 import { mount } from 'enzyme';
 
-import Pagination from '../pagination';
+import Pagination from '../../../components/pagination/pagination';
 
 describe('<Pagination />', () => {
   it('should render the pagination component', () => {
