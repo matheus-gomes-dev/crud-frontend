@@ -1,8 +1,13 @@
+/* eslint no-underscore-dangle: ["error", { "allow": ["_id"] }] */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { withStyles } from '@material-ui/core/styles';
 import Modal from '@material-ui/core/Modal';
+import { productRegistered } from './modalActions';
 import config from '../../config/config';
 const { API_URL } = config;
 
@@ -79,7 +84,8 @@ class ProductModal extends React.Component {
     this.setState({ ...this.state, productCategory: e.target.value });
   }
 
-  saveProduct() {
+  saveProduct(event) {
+    event.preventDefault();
     const {
       productName: name,
       productDescription: description,
@@ -92,7 +98,10 @@ class ProductModal extends React.Component {
       price,
       category,
     };
-    axios.post(API_URL, product);
+    axios.post(API_URL, product).then(response => {
+      this.props.productRegistered(response.data.data);
+      this.handleClose();
+    });
   }
 
   render() {
@@ -173,7 +182,7 @@ class ProductModal extends React.Component {
                     type="submit"
                     style={{ margin: '5px', width: '100px' }}
                     className="btn btn-success"
-                    onClick={() => this.saveProduct()}
+                    onClick={this.saveProduct}
                   >
                     Save
                   </button>
@@ -190,9 +199,14 @@ class ProductModal extends React.Component {
 ProductModal.propTypes = {
   classes: PropTypes.object.isRequired,
   title: PropTypes.string,
+  productRegistered: PropTypes.func,
 };
 
 // We need an intermediary variable for handling the recursive nesting.
 const SimpleModalWrapped = withStyles(styles)(ProductModal);
-
-export default SimpleModalWrapped;
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ productRegistered }, dispatch);
+export default connect(
+  null,
+  mapDispatchToProps,
+)(SimpleModalWrapped);

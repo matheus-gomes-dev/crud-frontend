@@ -2,6 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import Pagination from '../pagination/pagination';
 
 class Table extends React.PureComponent {
@@ -9,6 +10,7 @@ class Table extends React.PureComponent {
     super(props);
     this.deleteProduct = this.deleteProduct.bind(this);
     this.state = { currentPage: null, totalPages: null, products: [] };
+    this.updateProductsList = this.updateProductsList.bind(this);
   }
 
   componentDidMount() {
@@ -21,16 +23,36 @@ class Table extends React.PureComponent {
     });
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.newProduct._id !== this.props.newProduct._id) {
+      const { products } = this.state;
+      const updatedProductsList = [...products, this.props.newProduct];
+      this.updateProductsList(updatedProductsList);
+    }
+  }
+
   deleteProduct(id) {
     this.props.deleteProduct(id).then(() => {
       let { products } = this.state;
-      products = products.filter(product => product._id === id);
+      products = products.filter(product => product._id !== id);
       this.setState({ ...this.state, products });
     });
   }
 
+  updateProductsList(updatedProductsList) {
+    const { products, currentPage, totalPages } = this.state;
+    if (products.length === 5 && currentPage === totalPages) {
+      // update pagination
+      this.setState({ ...this.state, totalPages: totalPages + 1 });
+      return;
+    } else if (products.length === 5) {
+      return;
+    }
+    this.setState({ ...this.state, products: updatedProductsList });
+  }
+
   render() {
-    const { products } = this.state;
+    const { currentPage, totalPages, products } = this.state;
     return (
       <div>
         <table className="table table-hover">
@@ -73,7 +95,7 @@ class Table extends React.PureComponent {
             ))}
           </tbody>
         </table>
-        <Pagination />
+        <Pagination currentPage={currentPage} pages={totalPages} />
       </div>
     );
   }
@@ -83,11 +105,20 @@ class Table extends React.PureComponent {
 Table.propTypes = {
   getProductsInfo: PropTypes.func,
   deleteProduct: PropTypes.func,
+  newProduct: PropTypes.object,
 };
 Table.defaultProps = {
   getProductsInfo: null,
   deleteProduct: null,
+  newProduct: {},
 };
 /* --- end of props validation --- */
 
-export default Table;
+const mapStateToProps = state => ({
+  newProduct: state.get('tableUpdated').newProduct,
+  editedProduct: state.get('tableUpdated').editedProduct,
+});
+export default connect(
+  mapStateToProps,
+  null,
+)(Table);
