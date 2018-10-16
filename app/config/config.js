@@ -1,5 +1,3 @@
-/* eslint linebreak-style: ["error", "windows"] */
-
 const config = {
   API_URL: 'http://localhost:5000',
 };
